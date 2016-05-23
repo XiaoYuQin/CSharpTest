@@ -283,11 +283,13 @@ namespace mAppwidgetCoordinates
         }
     }
     public class MapPoints {
-        public Point point;
-        public String id;
-        
+
+        public int x;
+        public int y;
+
         public MapPoints() {
-            point = new Point();
+            /*this.x = x;
+            this.y = y;*/
         }
     }
 

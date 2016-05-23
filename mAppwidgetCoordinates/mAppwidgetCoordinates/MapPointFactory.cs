@@ -5,6 +5,8 @@ using System.Text;
 using System.Drawing;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
+using System.IO;
+
 
 namespace mAppwidgetCoordinates
 {
@@ -14,7 +16,7 @@ namespace mAppwidgetCoordinates
         public static String produceMapPoint(Point s,Point e,int count,String cardIndex,int beginCardNumber)
         {
             Console.WriteLine("produceMapPoint");
-            MapPointList list = new MapPointList();
+            MapPointList mapPointss = new MapPointList();
 
             double sss = ((double)2 / (double)100);
             debug("sss = " + sss);
@@ -31,31 +33,60 @@ namespace mAppwidgetCoordinates
                 MapPoints mapPoint = new MapPoints();
                 //debug("xstep * count = " + xstep * i);
 
-                mapPoint.point.X = (int)(s.X + xstep * i);
-                mapPoint.point.Y = (int)(s.Y + ystep * i);
-                mapPoint.id = cardIndex + "" + (beginCardNumber + i);
+                mapPoint.x = (int)(s.X + xstep * i);
+                mapPoint.y = (int)(s.Y + ystep * i);
+                mapPointss.add(cardIndex + "" + (beginCardNumber + i), mapPoint);
+
+                /*mapPoint.id = cardIndex + "" + (beginCardNumber + i);
 
                 debug("i = "+i+"  x = " + mapPoint.point.X + " y = " + mapPoint.point.Y);
-                list.add(mapPoint);
+                list.add(mapPoint);*/
                 //setProgressBar1();
                 
             }
-            string output = JsonConvert.SerializeObject(list);
+            string output = ConvertJsonString(JsonConvert.SerializeObject(mapPointss));
+
             Console.WriteLine(output);
 
             return output;
         }
 
+         private static string ConvertJsonString(string str)
+        {
+            //格式化json字符串
+            JsonSerializer serializer = new JsonSerializer();
+            TextReader tr = new StringReader(str);
+            JsonTextReader jtr = new JsonTextReader(tr);
+            object obj = serializer.Deserialize(jtr);
+            if (obj != null)
+            {
+                StringWriter textWriter = new StringWriter();
+                JsonTextWriter jsonWriter = new JsonTextWriter(textWriter)
+                {
+                    Formatting = Formatting.Indented,
+                    Indentation = 4,
+                    IndentChar =' '
+                };
+                serializer.Serialize(jsonWriter, obj);
+                return textWriter.ToString();
+            }
+            else
+            {
+                return str;
+            }          
+        }
+
+
         public class MapPointList
         {
-            public List<MapPoints> list;
+            public Dictionary<String, MapPoints> mapPoints;
             public MapPointList()
             {
-                list = new List<MapPoints>();
+                mapPoints = new Dictionary<String, MapPoints>();
             }
-            public void add(MapPoints mapPoints)
+            public void add(String id ,MapPoints mapPoints)
             {
-                list.Add(mapPoints);
+                this.mapPoints.Add(id, mapPoints);
             }
         }
     }
